@@ -40,20 +40,26 @@ if ($ProjectJson -notmatch '"EngineAssociation"\s*:\s*"5\.8"') {
 
 $VsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
 if (-not (Test-Path $VsWhere -PathType Leaf)) {
-    Stop-Build "Visual Studio Installer vswhere.exe was not found. Install Visual Studio 2022." 7
+    Stop-Build "Visual Studio Installer vswhere.exe was not found. Install Visual Studio 2026 or Visual Studio 2022 17.14+." 7
 }
 
-$VisualStudio = & $VsWhere -latest -version "[17.0,18.0)" -products * `
+$VisualStudio = & $VsWhere -latest -version "[18.0,19.0)" -products * `
     -requires Microsoft.VisualStudio.Workload.NativeGame -property installationPath
+$VisualStudioLabel = "Visual Studio 2026"
 if ([string]::IsNullOrWhiteSpace($VisualStudio)) {
-    Stop-Build "Visual Studio 2022 with the Game development with C++ workload was not found." 8
+    $VisualStudio = & $VsWhere -latest -version "[17.14,18.0)" -products * `
+        -requires Microsoft.VisualStudio.Workload.NativeGame -property installationPath
+    $VisualStudioLabel = "Visual Studio 2022 17.14+"
+}
+if ([string]::IsNullOrWhiteSpace($VisualStudio)) {
+    Stop-Build "Visual Studio 2026 or Visual Studio 2022 17.14+ with the Game development with C++ workload was not found." 8
 }
 
 New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
 
 Write-Host "Project: $ProjectFile"
 Write-Host "Engine:  $EngineRoot"
-Write-Host "VS 2022: $VisualStudio"
+Write-Host "$VisualStudioLabel`: $VisualStudio"
 
 if (-not $SkipGenerate) {
     Write-Host "Generating Visual Studio project files..."

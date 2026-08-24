@@ -26,7 +26,7 @@
 
 ### 前置
 
-Windows、UE 5.8 最新补丁、Visual Studio 2022、MSVC、Windows SDK。
+Windows、UE 5.8 最新补丁、推荐 Visual Studio 2026 18.0+（最低兼容 Visual Studio 2022 17.14+）、推荐 MSVC 14.50、推荐 Windows SDK 10.0.26100。
 
 ### 修改范围
 

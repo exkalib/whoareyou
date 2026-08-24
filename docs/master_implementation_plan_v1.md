@@ -95,7 +95,7 @@ M7 的动作原型可在 M4 后与 M5 并行，但正式接入世界结果必须
 
 状态：`BLOCKED`，等待 Windows 电脑。
 
-依赖：UE 5.8、Visual Studio 2022、C++ 游戏开发工作负载、Windows SDK。
+依赖：UE 5.8、推荐 Visual Studio 2026 18.0+（兼容 Visual Studio 2022 17.14+）、C++ 游戏开发工作负载、推荐 MSVC 14.50、推荐 Windows SDK 10.0.26100。
 
 实施步骤：
 

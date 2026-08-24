@@ -271,7 +271,7 @@ Depends：G0A。
 
 Files：`scripts/build_ue58_windows.ps1`。
 
-Do：检查 UE 5.8、项目关联、Visual Studio 2022 C++ 游戏工作负载；生成项目文件；构建 `WorldSimDemoEditor Win64 Development`；将日志写入 `Saved/BuildLogs`；任一步失败返回非零退出码。
+Do：检查 UE 5.8、项目关联、优先 Visual Studio 2026 18.0+（回退兼容 Visual Studio 2022 17.14+）及 C++ 游戏工作负载；生成项目文件；构建 `WorldSimDemoEditor Win64 Development`；将日志写入 `Saved/BuildLogs`；任一步失败返回非零退出码。
 
 Run：
 
@@ -417,3 +417,7 @@ M0-IC06 要求 ActiveActivityId，但当前 FActiveWorldActivity 只有 Opportun
 ### PLAN-CHANGE-003 增加 Windows 一键构建入口
 
 G0A 到 E020 原计划要求手工检查环境、生成项目和构建，容易丢失完整错误日志。新增 E019 PowerShell 入口，只自动执行 E020 已要求的动作，不改变阶段门、不替代真实 UE 编译，也不允许在 Mac 上标记成功。
+
+### PLAN-CHANGE-004 UE 5.8 改用推荐 Visual Studio 2026
+
+Epic 的 UE 5.8 官方矩阵已将 Visual Studio 2026 18.0+列为普通开发推荐版本，同时支持 Visual Studio 2022 17.14+。原计划沿用了旧版 UE 的 VS 2022 建议，现已修正：E019 优先检测 VS 2026，缺失时才回退 VS 2022；推荐 MSVC 14.50 和 Windows SDK 10.0.26100。
