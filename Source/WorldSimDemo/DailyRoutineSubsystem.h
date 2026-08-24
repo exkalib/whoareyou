@@ -21,6 +21,5 @@ public:
     bool TryGetActivityAt(FGuid PersonId, FWorldTime Time, FDailyScheduleEntry& OutEntry) const;
 
 private:
-    UPROPERTY()
     TMap<FGuid, TArray<FDailyScheduleEntry>> Schedules;
 };
