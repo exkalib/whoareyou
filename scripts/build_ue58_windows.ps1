@@ -14,6 +14,7 @@ function Stop-Build([string]$Message, [int]$ExitCode = 1) {
 $ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $ProjectFile = Join-Path $ProjectRoot "WorldSimDemo.uproject"
 $GenerateScript = Join-Path $EngineRoot "Engine\Build\BatchFiles\GenerateProjectFiles.bat"
+$UnrealBuildTool = Join-Path $EngineRoot "Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.exe"
 $BuildScript = Join-Path $EngineRoot "Engine\Build\BatchFiles\Build.bat"
 $LogDirectory = Join-Path $ProjectRoot "Saved\BuildLogs"
 $Timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
@@ -25,9 +26,6 @@ if (-not (Test-Path $ProjectFile -PathType Leaf)) {
 }
 if (-not (Test-Path $EngineRoot -PathType Container)) {
     Stop-Build "UE 5.8 root not found: $EngineRoot. Pass -EngineRoot with the installed path." 3
-}
-if (-not (Test-Path $GenerateScript -PathType Leaf)) {
-    Stop-Build "GenerateProjectFiles.bat not found: $GenerateScript" 4
 }
 if (-not (Test-Path $BuildScript -PathType Leaf)) {
     Stop-Build "Build.bat not found: $BuildScript" 5
@@ -62,11 +60,25 @@ Write-Host "Engine:  $EngineRoot"
 Write-Host "$VisualStudioLabel`: $VisualStudio"
 
 if (-not $SkipGenerate) {
-    Write-Host "Generating Visual Studio project files..."
-    & $GenerateScript "-project=$ProjectFile" -game -engine 2>&1 | Tee-Object -FilePath $GenerateLog
-    $GenerateExitCode = $LASTEXITCODE
-    if ($GenerateExitCode -ne 0) {
-        Stop-Build "Project generation failed with exit code $GenerateExitCode. Log: $GenerateLog" $GenerateExitCode
+    if (Test-Path $GenerateScript -PathType Leaf) {
+        Write-Host "Generating Visual Studio project files with GenerateProjectFiles.bat..."
+        & $GenerateScript "-project=$ProjectFile" -game -engine 2>&1 | Tee-Object -FilePath $GenerateLog
+        $GenerateExitCode = $LASTEXITCODE
+        if ($GenerateExitCode -ne 0) {
+            Stop-Build "Project generation failed with exit code $GenerateExitCode. Log: $GenerateLog" $GenerateExitCode
+        }
+    }
+    elseif (Test-Path $UnrealBuildTool -PathType Leaf) {
+        Write-Host "GenerateProjectFiles.bat is unavailable; using UnrealBuildTool -ProjectFiles..."
+        & $UnrealBuildTool -ProjectFiles "-Project=$ProjectFile" -Game -Rocket -Progress 2>&1 `
+            | Tee-Object -FilePath $GenerateLog
+        $GenerateExitCode = $LASTEXITCODE
+        if ($GenerateExitCode -ne 0) {
+            Stop-Build "UnrealBuildTool project generation failed with exit code $GenerateExitCode. Log: $GenerateLog" $GenerateExitCode
+        }
+    }
+    else {
+        Write-Warning "No project-file generator was found. Continuing with Build.bat; solution generation is not required for this build."
     }
 }
 

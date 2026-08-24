@@ -309,6 +309,10 @@ Do：每轮只修第一个根因组；记录 Error、Cause、Files、Fix；重�
 
 Verify：Development Editor 构建成功。
 
+Observed error 001：Epic Launcher 的 UE 5.8.1 安装中不存在 `Engine/Build/BatchFiles/GenerateProjectFiles.bat`，旧 E019 脚本在进入 Build.bat 前错误停止。
+
+Fix 001：生成项目文件改为三级策略：存在 GenerateProjectFiles.bat 时使用；否则使用 `Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe -ProjectFiles`；两者都不存在时给出警告并继续 Build.bat。工程文件生成不是命令行 Editor 构建的前置条件。
+
 ### E022 C++ Automation Smoke Tests
 
 Status：`BLOCKED-WINDOWS`。
@@ -421,3 +425,7 @@ G0A 到 E020 原计划要求手工检查环境、生成项目和构建，容易�
 ### PLAN-CHANGE-004 UE 5.8 改用推荐 Visual Studio 2026
 
 Epic 的 UE 5.8 官方矩阵已将 Visual Studio 2026 18.0+列为普通开发推荐版本，同时支持 Visual Studio 2022 17.14+。原计划沿用了旧版 UE 的 VS 2022 建议，现已修正：E019 优先检测 VS 2026，缺失时才回退 VS 2022；推荐 MSVC 14.50 和 Windows SDK 10.0.26100。
+
+### PLAN-CHANGE-005 兼容 Epic Launcher 二进制引擎生成方式
+
+Windows 实测证明 UE 5.8.1 Launcher 安装不保证包含源码版的 GenerateProjectFiles.bat。E019 改为优先 BatchFiles 脚本、回退 UnrealBuildTool `-ProjectFiles`、最后允许跳过解决方案生成直接执行 Build.bat。此修改不降低真实编译门槛。
