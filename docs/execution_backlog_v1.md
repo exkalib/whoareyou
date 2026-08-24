@@ -333,6 +333,10 @@ Verify：命令行运行 `WorldSim.M0.*` 全绿。
 
 Actual：新增四组独立临时 UWorld 自动化测试，覆盖 6 条 Truth 查询与重复 ID、同 Seed Bootstrap ID、查询纯度和重复初始化拒绝；等待 Windows 命令行执行验证。
 
+Observed test error 001：四个测试均被发现，但首个测试创建默认名 `Untitled_1` 的临时世界时与编辑器已有 Level/WorldSettings 重名并触发 Fatal。
+
+Fix 001：测试夹具为每个临时世界分配 `WorldSimAutomation_N` 进程内唯一名称，避免 Transient WorldSettings 命名冲突；等待 Windows 复测。
+
 ### E023 Blueprint Smoke Assets
 
 Status：`BLOCKED-WINDOWS`。Card：`M0-IC07`。

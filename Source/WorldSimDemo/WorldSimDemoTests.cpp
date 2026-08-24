@@ -16,7 +16,9 @@ class FScopedTestWorld
 public:
     FScopedTestWorld()
     {
-        World = UWorld::CreateWorld(EWorldType::Game, false);
+        static int32 NextWorldId = 1;
+        const FName WorldName(*FString::Printf(TEXT("WorldSimAutomation_%d"), NextWorldId++));
+        World = UWorld::CreateWorld(EWorldType::Game, false, WorldName);
         if (World != nullptr)
         {
             World->InitializeNewWorld(UWorld::InitializationValues()
