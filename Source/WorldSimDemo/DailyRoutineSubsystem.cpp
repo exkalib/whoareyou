@@ -27,23 +27,25 @@ void UDailyRoutineSubsystem::GenerateDefaultDay(const FPersonLite& Person, const
     AddEntry(EDailyActivity::Eat, Person.HomeRegion, 1110, 1170);
     AddEntry(EDailyActivity::Leisure, Person.HomeRegion, 1170, 1320);
     AddEntry(EDailyActivity::Sleep, Person.HomeRegion, 1320, 1440);
-    Schedules.Add(Person.PersonId, MoveTemp(Day));
+    FDailySchedule Schedule;
+    Schedule.Entries = MoveTemp(Day);
+    Schedules.Add(Person.PersonId, MoveTemp(Schedule));
 }
 
 TArray<FDailyScheduleEntry> UDailyRoutineSubsystem::GetSchedule(const FGuid PersonId) const
 {
-    if (const TArray<FDailyScheduleEntry>* Schedule = Schedules.Find(PersonId))
+    if (const FDailySchedule* Schedule = Schedules.Find(PersonId))
     {
-        return *Schedule;
+        return Schedule->Entries;
     }
     return TArray<FDailyScheduleEntry>();
 }
 
 bool UDailyRoutineSubsystem::TryGetActivityAt(const FGuid PersonId, const FWorldTime Time, FDailyScheduleEntry& OutEntry) const
 {
-    if (const TArray<FDailyScheduleEntry>* Schedule = Schedules.Find(PersonId))
+    if (const FDailySchedule* Schedule = Schedules.Find(PersonId))
     {
-        for (const FDailyScheduleEntry& Entry : *Schedule)
+        for (const FDailyScheduleEntry& Entry : Schedule->Entries)
         {
             if (Entry.Contains(Time))
             {

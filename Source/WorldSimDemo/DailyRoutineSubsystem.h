@@ -5,6 +5,15 @@
 #include "WorldSimTypes.h"
 #include "DailyRoutineSubsystem.generated.h"
 
+USTRUCT()
+struct FDailySchedule
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    TArray<FDailyScheduleEntry> Entries;
+};
+
 UCLASS(BlueprintType)
 class WORLDSIMDEMO_API UDailyRoutineSubsystem : public UWorldSubsystem
 {
@@ -21,5 +30,6 @@ public:
     bool TryGetActivityAt(FGuid PersonId, FWorldTime Time, FDailyScheduleEntry& OutEntry) const;
 
 private:
-    TMap<FGuid, TArray<FDailyScheduleEntry>> Schedules;
+    UPROPERTY()
+    TMap<FGuid, FDailySchedule> Schedules;
 };
