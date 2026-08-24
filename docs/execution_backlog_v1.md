@@ -265,7 +265,7 @@ Actual：E001-E013 均保持 CODED 并等待 UE，E014 静态脚本已真实退�
 
 ### E019 Windows 构建入口
 
-Status：`CODED-WAITING-WINDOWS`。Mode：`PRECOMPILE-SUPPORT`。
+Status：`VERIFIED`。Mode：`PRECOMPILE-SUPPORT`。
 
 Depends：G0A。
 
@@ -285,11 +285,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_ue58_windows.ps1
 powershell -ExecutionPolicy Bypass -File .\scripts\build_ue58_windows.ps1 -EngineRoot "D:\Epic Games\UE_5.8"
 ```
 
-Verify：只能在 Windows 实际运行；成功输出构建日志路径，失败日志交给 E021。Mac 上不标记 VERIFIED。
+Verify：Windows 11、UE 5.8.1、Visual Studio 2026 实测完成工程生成、Editor 构建和日志保存，退出成功。
 
 ### E020 UE 项目生成和首次构建
 
-Status：`BLOCKED-WINDOWS`。Card：`M0-IC01`。
+Status：`VERIFIED`。Card：`M0-IC01`。
 
 Depends：G0A、E019 脚本已复制到 Windows 工作区。
 
@@ -297,11 +297,11 @@ Files：不预设；先只生成工程和构建。
 
 Do：记录 UE/VS 版本；清理生成目录；生成项目；构建 Development Editor；保存第一份完整错误日志。
 
-Verify：构建退出 0；否则本票保持 DOING 并创建 E021 错误修复记录。
+Verify：Windows 实测 UHT 与 Development Editor 构建退出 0；UE 5.8.1 编辑器成功加载 `WorldSimDemo` 模块。
 
 ### E021 编译错误逐组修复
 
-Status：`BLOCKED-WINDOWS`。
+Status：`VERIFIED`。
 
 Depends：E020 已产生日志。
 
@@ -313,9 +313,15 @@ Observed error 001：Epic Launcher 的 UE 5.8.1 安装中不存在 `Engine/Build
 
 Fix 001：生成项目文件改为三级策略：存在 GenerateProjectFiles.bat 时使用；否则使用 `Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.exe -ProjectFiles`；两者都不存在时给出警告并继续 Build.bat。工程文件生成不是命令行 Editor 构建的前置条件。
 
+Observed error 002：UE 5.8 UHT 拒绝 `TMap<FGuid, TArray<FDailyScheduleEntry>>`，嵌套容器即使不是 UPROPERTY 也不能作为 UCLASS 成员。
+
+Fix 002：新增 `FDailySchedule` USTRUCT 包装数组，内部缓存改为 `TMap<FGuid, FDailySchedule>`；Windows 完整重建成功。
+
+Verify evidence：UE 5.8.1 日志显示 Engine initialized、地图检查 0 Error/0 Warning、`WorldSimDemoGameMode` 加载且 PIE 成功启动。
+
 ### E022 C++ Automation Smoke Tests
 
-Status：`BLOCKED-WINDOWS`。
+Status：`CODED-WAITING-WINDOWS`。
 
 Depends：E021 `VERIFIED`。
 
@@ -324,6 +330,8 @@ Files：新建 `WorldSimDemoTests.cpp`，必要时 Build.cs 增加开发测试�
 Do：实现 Truth 6 事件查询、稳定 Demo GUID、查询纯度、Bootstrap 重复拒绝四组测试；使用 Editor Automation Framework。
 
 Verify：命令行运行 `WorldSim.M0.*` 全绿。
+
+Actual：新增四组独立临时 UWorld 自动化测试，覆盖 6 条 Truth 查询与重复 ID、同 Seed Bootstrap ID、查询纯度和重复初始化拒绝；等待 Windows 命令行执行验证。
 
 ### E023 Blueprint Smoke Assets
 
@@ -404,9 +412,9 @@ Verify：PIE 初始化、推进、重复初始化、重开 PIE 均符合断言�
 
 ## 9. 下一条唯一可执行任务
 
-`E001 查询公共类型`。
+`E022 C++ Automation Smoke Tests`。
 
-开始 E001 不需要 Windows、不需要进一步产品决策、不需要读取其他文档。它只能修改 `WorldSimTypes.h`，完成后转到 E002。
+E022 源码已完成，下一步必须在 Windows 运行 `WorldSim.M0.*`；全绿后转到 E023 Blueprint Smoke Assets。
 
 ## 10. 计划变更记录
 
