@@ -6,6 +6,7 @@
 #include "MotivationSubsystem.h"
 #include "OpportunityCompilerSubsystem.h"
 #include "TruthLedgerSubsystem.h"
+#include "UObject/Package.h"
 #include "WorldSimDemoBootstrapSubsystem.h"
 #include "WorldSimulationSubsystem.h"
 
@@ -18,7 +19,9 @@ public:
     {
         static int32 NextWorldId = 1;
         const FName WorldName(*FString::Printf(TEXT("WorldSimAutomation_%d"), NextWorldId++));
-        World = UWorld::CreateWorld(EWorldType::Game, false, WorldName);
+        UPackage* WorldPackage = CreatePackage(
+            *FString::Printf(TEXT("/Temp/%s"), *WorldName.ToString()));
+        World = UWorld::CreateWorld(EWorldType::Game, false, WorldName, WorldPackage);
         if (World != nullptr)
         {
             World->InitializeNewWorld(UWorld::InitializationValues()

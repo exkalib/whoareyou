@@ -337,6 +337,10 @@ Observed test error 001：四个测试均被发现，但首个测试创建默认
 
 Fix 001：测试夹具为每个临时世界分配 `WorldSimAutomation_N` 进程内唯一名称，避免 Transient WorldSettings 命名冲突；等待 Windows 复测。
 
+Observed test error 002：唯一 UWorld 名称已生效，但 UE 仍把测试世界放入共享 `/Temp/Untitled_1` 包，PersistentLevel 内的 WorldSettings 继续重名。
+
+Fix 002：为每个测试世界同时创建唯一 `/Temp/WorldSimAutomation_N` UPackage，并显式传给 `UWorld::CreateWorld`，隔离 World、Level 和 WorldSettings 命名空间；等待 Windows 复测。
+
 ### E023 Blueprint Smoke Assets
 
 Status：`BLOCKED-WINDOWS`。Card：`M0-IC07`。
