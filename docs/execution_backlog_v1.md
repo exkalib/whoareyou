@@ -341,6 +341,10 @@ Observed test error 002：唯一 UWorld 名称已生效，但 UE 仍把测试世
 
 Fix 002：为每个测试世界同时创建唯一 `/Temp/WorldSimAutomation_N` UPackage，并显式传给 `UWorld::CreateWorld`，隔离 World、Level 和 WorldSettings 命名空间；等待 Windows 复测。
 
+Observed test error 003：唯一 World 与 Package 均已生效，但 UE 5.8 的 `UWorld::CreateWorld` 已执行初始化；测试夹具再次调用 `InitializeNewWorld`，导致同一 PersistentLevel 第二次创建 WorldSettings。
+
+Fix 003：删除重复 `InitializeNewWorld`，由 `UWorld::CreateWorld` 负责唯一一次标准初始化；保留独立 World 名和 Package；等待 Windows 复测。
+
 ### E023 Blueprint Smoke Assets
 
 Status：`BLOCKED-WINDOWS`。Card：`M0-IC07`。

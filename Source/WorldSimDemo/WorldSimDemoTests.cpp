@@ -22,17 +22,6 @@ public:
         UPackage* WorldPackage = CreatePackage(
             *FString::Printf(TEXT("/Temp/%s"), *WorldName.ToString()));
         World = UWorld::CreateWorld(EWorldType::Game, false, WorldName, WorldPackage);
-        if (World != nullptr)
-        {
-            World->InitializeNewWorld(UWorld::InitializationValues()
-                .AllowAudioPlayback(false)
-                .RequiresHitProxies(false)
-                .CreatePhysicsScene(false)
-                .CreateNavigation(false)
-                .CreateAISystem(false)
-                .ShouldSimulatePhysics(false)
-                .SetTransactional(false));
-        }
     }
 
     ~FScopedTestWorld()
