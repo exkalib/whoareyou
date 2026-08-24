@@ -1,0 +1,17 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.4",
+  "Category": "Games",
+  "Description": "World simulation foundation project.",
+  "Modules": [
+    {
+      "Name": "WorldSimDemo",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "TargetPlatforms": [
+    "Mac",
+    "Win64"
+  ]
+}
