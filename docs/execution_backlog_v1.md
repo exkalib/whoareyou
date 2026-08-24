@@ -321,7 +321,7 @@ Verify evidence：UE 5.8.1 日志显示 Engine initialized、地图检查 0 Erro
 
 ### E022 C++ Automation Smoke Tests
 
-Status：`CODED-WAITING-WINDOWS`。
+Status：`VERIFIED`。
 
 Depends：E021 `VERIFIED`。
 
@@ -331,7 +331,7 @@ Do：实现 Truth 6 事件查询、稳定 Demo GUID、查询纯度、Bootstrap �
 
 Verify：命令行运行 `WorldSim.M0.*` 全绿。
 
-Actual：新增四组独立临时 UWorld 自动化测试，覆盖 6 条 Truth 查询与重复 ID、同 Seed Bootstrap ID、查询纯度和重复初始化拒绝；等待 Windows 命令行执行验证。
+Actual：新增四组独立临时 UWorld 自动化测试，覆盖 6 条 Truth 查询与重复 ID、同 Seed Bootstrap ID、查询纯度和重复初始化拒绝；Windows UE 5.8.1 实测 4/4 Success，命令行 `TEST COMPLETE. EXIT CODE: 0`。
 
 Observed test error 001：四个测试均被发现，但首个测试创建默认名 `Untitled_1` 的临时世界时与编辑器已有 Level/WorldSettings 重名并触发 Fatal。
 
@@ -347,13 +347,15 @@ Fix 003：删除重复 `InitializeNewWorld`，由 `UWorld::CreateWorld` 负责�
 
 ### E023 Blueprint Smoke Assets
 
-Status：`BLOCKED-WINDOWS`。Card：`M0-IC07`。
+Status：`CODED-WAITING-WINDOWS-ASSETS`。Card：`M0-IC07`。
 
 Depends：E022 `VERIFIED`。
 
 Do：在 UE 创建 IC07 指定 Map、Widget、Controller；连接初始化、三个推进按钮和快照刷新。
 
 Verify：PIE 初始化、推进、重复初始化、重开 PIE 均符合断言；保存截图和 Output Log 摘要。
+
+Actual：新增原生 `WorldSimSmokeController` 与 `WorldSimSmokeWidget`，提供自动显示面板、初始化、推进 10/60/1440 分钟、刷新快照和人物因果信息展示；新增 `create_e023_assets.py` 在 UE 中生成规定的 Map/Widget/Blueprint 资产并连接原生类；等待 Windows 生成资产、编译与 PIE 验证。
 
 ## 6. M1 原子执行顺序
 
@@ -449,3 +451,7 @@ Epic 的 UE 5.8 官方矩阵已将 Visual Studio 2026 18.0+列为普通开发推
 ### PLAN-CHANGE-005 兼容 Epic Launcher 二进制引擎生成方式
 
 Windows 实测证明 UE 5.8.1 Launcher 安装不保证包含源码版的 GenerateProjectFiles.bat。E019 改为优先 BatchFiles 脚本、回退 UnrealBuildTool `-ProjectFiles`、最后允许跳过解决方案生成直接执行 Build.bat。此修改不降低真实编译门槛。
+
+### PLAN-CHANGE-006 E023 资产采用原生行为加可重复生成外壳
+
+二进制 Blueprint/Map 资产不能在非 UE 主机可靠手工构造。E023 将按钮行为、快照格式和初始化流程放入可审查的原生 Widget/Controller，使用 UE Python 在 Windows 生成规定路径的 WBP、BP 和 Map 资产。生成资产继承原生类，仍可在 UE 中继续视觉编辑；不改变 IC07 的路径、按钮、流程或验收断言。

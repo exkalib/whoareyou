@@ -10,6 +10,12 @@
       "LoadingPhase": "Default"
     }
   ],
+  "Plugins": [
+    {
+      "Name": "PythonScriptPlugin",
+      "Enabled": true
+    }
+  ],
   "TargetPlatforms": [
     "Mac",
     "Win64"
