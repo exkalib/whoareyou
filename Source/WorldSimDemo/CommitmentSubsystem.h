@@ -20,8 +20,24 @@ public:
     UFUNCTION(BlueprintPure, Category="World Simulation|Commitment")
     bool TryGetCommitment(FGuid CommitmentId, FCommitment& OutCommitment) const;
 
-    UFUNCTION(BlueprintCallable, Category="World Simulation|Commitment")
+    UFUNCTION(BlueprintPure, Category="World Simulation|Commitment")
     TArray<FCommitment> GetCommitmentsForSubject(FGuid SubjectId) const;
+
+    UFUNCTION(BlueprintPure, Category="World Simulation|Commitment")
+    TArray<FCommitment> GetCommitments(int32 MaxResults = 100) const;
+
+    UFUNCTION(BlueprintPure, Category="World Simulation|Commitment")
+    TArray<FCommitment> GetActiveCommitments(int32 MaxResults = 100) const;
+
+    UFUNCTION(BlueprintPure, Category="World Simulation|Commitment")
+    bool TryGetBlockingCommitment(
+        FGuid SubjectId,
+        FWorldTime ActivityStart,
+        FWorldTime ActivityEnd,
+        FCommitment& OutCommitment) const;
+
+    UFUNCTION(BlueprintCallable, Category="World Simulation|Commitment")
+    int32 AdvanceCommitments(FWorldTime CurrentTime);
 
 private:
     UPROPERTY()

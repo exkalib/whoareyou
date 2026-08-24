@@ -20,6 +20,9 @@ public:
     UFUNCTION(BlueprintPure, Category="World Simulation|People")
     TArray<FPersonLite> GetPeopleInRegion(FName RegionId) const;
 
+    UFUNCTION(BlueprintPure, Category="World Simulation|People")
+    TArray<FPersonLite> GetPeople(int32 MaxResults = 100) const;
+
 private:
     UPROPERTY()
     TMap<FGuid, FPersonLite> People;

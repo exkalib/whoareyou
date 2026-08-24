@@ -20,6 +20,15 @@ public:
     UFUNCTION(BlueprintCallable, Category="World Simulation|Opportunity")
     TArray<FWorldOpportunity> GetRelevantOpportunities(FGuid PersonId, FName RegionId, int32 MaxResults);
 
+    UFUNCTION(BlueprintCallable, Category="World Simulation|Opportunity")
+    bool TryClaimBestOpportunity(FGuid PersonId, FName RegionId, FWorldOpportunity& OutOpportunity);
+
+    UFUNCTION(BlueprintPure, Category="World Simulation|Opportunity")
+    TArray<FWorldOpportunity> GetAvailableOpportunities(
+        FWorldTime At,
+        FName RegionId,
+        int32 MaxResults = 100) const;
+
 private:
     UPROPERTY()
     TMap<FGuid, FWorldOpportunity> Opportunities;

@@ -107,6 +107,34 @@ bool UMotivationSubsystem::TryGetDecisionTrace(const FGuid PersonId, FDecisionTr
     return false;
 }
 
+void UMotivationSubsystem::AdvanceCausalStates(const int32 Minutes)
+{
+    if (Minutes <= 0)
+    {
+        return;
+    }
+
+    const float Hours = static_cast<float>(Minutes) / 60.0f;
+    for (TPair<FGuid, FPersonCausalState>& Entry : States)
+    {
+        FPersonCausalState& State = Entry.Value;
+        State.Hunger = FMath::Clamp(State.Hunger + Hours * 0.04f, 0.0f, 1.0f);
+        State.Fatigue = FMath::Clamp(State.Fatigue + Hours * 0.025f, 0.0f, 1.0f);
+
+        if (State.Hunger >= 0.95f || State.Fatigue >= 0.98f)
+        {
+            State.Health = FMath::Clamp(State.Health - Hours * 0.01f, 0.0f, 1.0f);
+        }
+    }
+}
+
+TArray<FGuid> UMotivationSubsystem::GetRegisteredPersonIds() const
+{
+    TArray<FGuid> PersonIds;
+    States.GetKeys(PersonIds);
+    return PersonIds;
+}
+
 void UMotivationSubsystem::NormalizeState(FPersonCausalState& State)
 {
     State.Hunger = FMath::Clamp(State.Hunger, 0.0f, 1.0f);

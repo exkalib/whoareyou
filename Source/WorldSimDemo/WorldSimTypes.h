@@ -27,6 +27,25 @@ enum class ECommitmentState : uint8
 };
 
 UENUM(BlueprintType)
+enum class ECommitmentOutcome : uint8
+{
+    None,
+    Succeeded,
+    Failed,
+    Injured,
+    Missing,
+    Deceased
+};
+
+UENUM(BlueprintType)
+enum class EPersonLifeState : uint8
+{
+    Active,
+    Missing,
+    Deceased
+};
+
+UENUM(BlueprintType)
 enum class EPersonGender : uint8
 {
     Unspecified,
@@ -130,6 +149,12 @@ struct WORLDSIMDEMO_API FCommitment
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bHardCommitment = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.0", ClampMax="1.0"))
+    float RiskLevel = 0.0f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    ECommitmentOutcome Outcome = ECommitmentOutcome::None;
 };
 
 USTRUCT(BlueprintType)
@@ -183,7 +208,16 @@ struct WORLDSIMDEMO_API FPersonCausalState
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bAutonomous = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EPersonLifeState LifeState = EPersonLifeState::Active;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FGuid PersonId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName CurrentRegion;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.0", ClampMax="1.0"))
     float Hunger = 0.0f;
@@ -293,6 +327,13 @@ struct WORLDSIMDEMO_API FWorldOpportunity
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float CreditReward = 0.0f;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1"))
+    int32 DurationMinutes = 60;
+
+    // -1 means unlimited uses until the opportunity expires.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="-1"))
+    int32 AvailableUses = 1;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FString Summary;
 
@@ -377,6 +418,24 @@ struct WORLDSIMDEMO_API FWorldMessage
 };
 
 USTRUCT(BlueprintType)
+struct WORLDSIMDEMO_API FMessageKnowledge
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGuid KnowerId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGuid MessageId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FWorldTime LearnedAt;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.0", ClampMax="1.0"))
+    float BeliefConfidence = 0.5f;
+};
+
+USTRUCT(BlueprintType)
 struct WORLDSIMDEMO_API FRegionSnapshot
 {
     GENERATED_BODY()
@@ -392,4 +451,141 @@ struct WORLDSIMDEMO_API FRegionSnapshot
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 ActiveJobs = 0;
+};
+USTRUCT(BlueprintType)
+struct WORLDSIMDEMO_API FActiveWorldActivity
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGuid PersonId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGuid OpportunityId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Title;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName RegionId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EWorldGoalType Goal = EWorldGoalType::None;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 RemainingMinutes = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float CreditReward = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.0", ClampMax="1.0"))
+    float Danger = 0.0f;
+};
+
+USTRUCT(BlueprintType)
+struct WORLDSIMDEMO_API FWorldEventQuery
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FGuid SubjectId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName RegionId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FName EventType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FWorldTime FromInclusive;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FWorldTime ToExclusive;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bUseTimeRange = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1", ClampMax="1000"))
+    int32 MaxResults = 100;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bNewestFirst = true;
+
+    void Normalize()
+    {
+        MaxResults = FMath::Clamp(MaxResults, 1, 1000);
+    }
+
+    bool IsValid() const
+    {
+        return MaxResults > 0
+            && MaxResults <= 1000
+            && (!bUseTimeRange || FromInclusive < ToExclusive);
+    }
+};
+
+USTRUCT(BlueprintType)
+struct WORLDSIMDEMO_API FSimulationDebugLimits
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1", ClampMax="1000"))
+    int32 MaxPeople = 100;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1", ClampMax="1000"))
+    int32 MaxActivities = 100;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1", ClampMax="1000"))
+    int32 MaxCommitments = 100;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1", ClampMax="1000"))
+    int32 MaxEvents = 200;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="1", ClampMax="1000"))
+    int32 MaxMessages = 200;
+
+    void Normalize()
+    {
+        MaxPeople = FMath::Clamp(MaxPeople, 1, 1000);
+        MaxActivities = FMath::Clamp(MaxActivities, 1, 1000);
+        MaxCommitments = FMath::Clamp(MaxCommitments, 1, 1000);
+        MaxEvents = FMath::Clamp(MaxEvents, 1, 1000);
+        MaxMessages = FMath::Clamp(MaxMessages, 1, 1000);
+    }
+
+    bool IsValid() const
+    {
+        return MaxPeople > 0 && MaxPeople <= 1000
+            && MaxActivities > 0 && MaxActivities <= 1000
+            && MaxCommitments > 0 && MaxCommitments <= 1000
+            && MaxEvents > 0 && MaxEvents <= 1000
+            && MaxMessages > 0 && MaxMessages <= 1000;
+    }
+};
+
+USTRUCT(BlueprintType)
+struct WORLDSIMDEMO_API FDemoWorldIds
+{
+    GENERATED_BODY()
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FName RegionId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FGuid PlayerId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FGuid WorkerId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FGuid TravellerId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FGuid SafeCommitmentId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FGuid RiskCommitmentId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TArray<FGuid> OpportunityIds;
 };

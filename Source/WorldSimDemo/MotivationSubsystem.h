@@ -23,6 +23,12 @@ public:
     UFUNCTION(BlueprintPure, Category="World Simulation|Motivation")
     bool TryGetDecisionTrace(FGuid PersonId, FDecisionTrace& OutTrace) const;
 
+    UFUNCTION(BlueprintCallable, Category="World Simulation|Motivation")
+    void AdvanceCausalStates(int32 Minutes);
+
+    UFUNCTION(BlueprintPure, Category="World Simulation|Motivation")
+    TArray<FGuid> GetRegisteredPersonIds() const;
+
 private:
     UPROPERTY()
     TMap<FGuid, FPersonCausalState> States;

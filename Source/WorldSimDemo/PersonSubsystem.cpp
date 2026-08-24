@@ -36,3 +36,21 @@ TArray<FPersonLite> UPersonSubsystem::GetPeopleInRegion(const FName RegionId) co
     }
     return Result;
 }
+
+TArray<FPersonLite> UPersonSubsystem::GetPeople(const int32 MaxResults) const
+{
+    TArray<FPersonLite> Result;
+    People.GenerateValueArray(Result);
+    Result.Sort([](const FPersonLite& A, const FPersonLite& B)
+    {
+        return A.PersonId.ToString(EGuidFormats::Digits)
+            < B.PersonId.ToString(EGuidFormats::Digits);
+    });
+
+    const int32 BoundedMaxResults = FMath::Clamp(MaxResults, 1, 1000);
+    if (Result.Num() > BoundedMaxResults)
+    {
+        Result.SetNum(BoundedMaxResults);
+    }
+    return Result;
+}
