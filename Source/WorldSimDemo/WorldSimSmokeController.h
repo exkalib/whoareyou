@@ -13,6 +13,7 @@ class WORLDSIMDEMO_API AWorldSimSmokeController : public AActor
 
 public:
     AWorldSimSmokeController();
+    virtual void Tick(float DeltaSeconds) override;
 
 protected:
     virtual void BeginPlay() override;
@@ -21,6 +22,8 @@ protected:
     TSubclassOf<UWorldSimSmokeWidget> WidgetClass;
 
 private:
+    void TryCreateWidget();
+
     UPROPERTY(Transient)
     TObjectPtr<UWorldSimSmokeWidget> ActiveWidget;
 };

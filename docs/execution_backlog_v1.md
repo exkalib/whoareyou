@@ -357,6 +357,10 @@ Verify：PIE 初始化、推进、重复初始化、重开 PIE 均符合断言�
 
 Actual：新增原生 `WorldSimSmokeController` 与 `WorldSimSmokeWidget`，提供自动显示面板、初始化、推进 10/60/1440 分钟、刷新快照和人物因果信息展示；新增 `create_e023_assets.py` 在 UE 中生成规定的 Map/Widget/Blueprint 资产并连接原生类；等待 Windows 生成资产、编译与 PIE 验证。
 
+Observed PIE error 001：Entry 关卡进入 PIE 成功但没有显示原生面板。GameMode BeginPlay 早于本地 PlayerController 登录，Controller 首次 CreateWidget 没有有效本地拥有者。
+
+Fix 001：SmokeController 在 BeginPlay 尝试创建，并在首个本地 PlayerController 可用前短暂 Tick；使用该 PlayerController 创建 Widget，成功后立即关闭 Tick 并输出显示日志。
+
 ## 6. M1 原子执行顺序
 
 | Ticket | Card | 实施内容 | Depends | Files | Verify |
